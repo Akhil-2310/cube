@@ -147,9 +147,9 @@ export function PoolDashboard() {
             <small>balance × seconds</small>
           </div>
           <div className="pixel-card metric">
-            <span>Private wallet</span>
+            <span>Available confidential balance</span>
             <strong>{pool.privateBalance}</strong>
-            <small>cUSDCMock available</small>
+            <small>cUSDCMock in your connected wallet</small>
           </div>
           <button
             className="pixel-card metric decrypt-card"

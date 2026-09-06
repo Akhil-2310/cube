@@ -3,9 +3,9 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 const SEPOLIA_CUSDC_MOCK = "0x7c5BF43B851c1dff1a4feE8dB225b87f2C223639";
 const SEPOLIA_USDC_MOCK = "0x9b5Cd13b8eFbB58Dc25A05CF411D8056058aDFfF";
-const STRATEGY_DEPLOYMENT = "ConfidentialYieldStrategyV7";
-const PRIZE_POOL_DEPLOYMENT = "ConfidentialPrizePoolV7";
-const VAULT_DEPLOYMENT = "ConfidentialPrizeVaultV7";
+const STRATEGY_DEPLOYMENT = "ConfidentialYieldStrategyV8";
+const PRIZE_POOL_DEPLOYMENT = "ConfidentialPrizePoolV8";
+const VAULT_DEPLOYMENT = "ConfidentialPrizeVaultV8";
 
 const deployPool: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
@@ -94,5 +94,5 @@ const deployPool: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 };
 
 export default deployPool;
-deployPool.id = "deploy_confidential_prize_pool_v7";
+deployPool.id = "deploy_confidential_prize_pool_v8";
 deployPool.tags = ["Pool"];

@@ -236,9 +236,10 @@ contract ConfidentialPrizeVault is ZamaEthereumConfig, Ownable, Pausable, Reentr
         emit DrawClosed(closingDrawId);
         emit EncryptedTicketsGenerated(closingDrawId);
 
-        // The next accounting period starts at the scheduled boundary immediately;
-        // settlement for the closed draw happens independently.
-        _openNextDraw(draw.closesAt);
+        // Start from the actual close time so a delayed keeper cannot create a
+        // successor whose deadline is already in the past. Settlement for the
+        // closed draw still happens independently.
+        _openNextDraw(uint48(block.timestamp));
     }
 
     /// @notice Settles a bounded set of participants, keeping gas and FHE work predictable.

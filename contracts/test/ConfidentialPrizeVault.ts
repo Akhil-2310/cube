@@ -156,6 +156,21 @@ describe("ConfidentialPrizeVault", function () {
     expect(await vault.currentDrawId()).to.equal(2);
   });
 
+  it("gives the successor its full duration when the keeper closes late", async function () {
+    await vault.openDraw();
+    const firstDraw = await vault.drawInfo(1);
+    await time.increaseTo(firstDraw[1] + 120n);
+
+    const closeTransaction = await vault.closeDraw();
+    const receipt = await closeTransaction.wait();
+    const closeBlock = await ethers.provider.getBlock(receipt!.blockNumber);
+    const nextDraw = await vault.drawInfo(2);
+
+    expect(nextDraw[0]).to.equal(closeBlock!.timestamp);
+    expect(nextDraw[1] - nextDraw[0]).to.equal(300);
+    expect(nextDraw[1]).to.be.greaterThan(closeBlock!.timestamp);
+  });
+
   it("keeps the next draw open without expanding the closed draw participant set", async function () {
     await vault.openDraw();
     await shield(alice, tokens(200));
