@@ -42,6 +42,16 @@ flowchart LR
 | `contracts/keeper`          | Self-hosted permissionless draw closer and encrypted batch settler                               |
 | `frontend`                  | RainbowKit wallet UX, encrypted inputs, EIP-712 user decryption, claims, and keeper controls     |
 
+### Sepolia deployment (V8)
+
+| Contract                    | Address                                      |
+| --------------------------- | -------------------------------------------- |
+| `ConfidentialPrizeVault`    | `0x4294f12aE993561B5b6e966A653468f59cC9C39f` |
+| `ConfidentialPrizePool`     | `0x538011b9aF6C295c3b3225C252A4176ef26a248f` |
+| `ConfidentialYieldStrategy` | `0xE0e8856a06C4583c45709f0E52AF3230978F1C9E` |
+| Zama `cUSDCMock`            | `0x7c5BF43B851c1dff1a4feE8dB225b87f2C223639` |
+| Public test USDC            | `0x9b5Cd13b8eFbB58Dc25A05CF411D8056058aDFfF` |
+
 ## End-to-end flow
 
 1. Anyone opens the first five-minute draw.
