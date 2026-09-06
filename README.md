@@ -8,6 +8,9 @@ onchain.
 > Cube is an unaudited testnet demonstration. Its strategy models yield at a fixed 5% annual rate against an
 > admin/user-funded encrypted reserve. A real deployment would replace that strategy with an audited lending adapter.
 
+- **Live app:** [https://cube-nu-nine.vercel.app/](https://cube-nu-nine.vercel.app/)
+- **Video demo:** [https://www.loom.com/share/de439f34bd9746d699122e9438f0cd56](https://www.loom.com/share/de439f34bd9746d699122e9438f0cd56)
+
 ```text
 pool/
 ├── contracts/   # Hardhat, Solidity, deployment, keeper, and FHE mock tests
