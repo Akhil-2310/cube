@@ -8,7 +8,7 @@ weights, random tickets, results, and payouts encrypted onchain.
 > adapter.
 
 - **Live app:** [https://cube-nu-nine.vercel.app/](https://cube-nu-nine.vercel.app/)
-- **Video demo:** [https://www.loom.com/share/de439f34bd9746d699122e9438f0cd56](https://www.loom.com/share/de439f34bd9746d699122e9438f0cd56)
+- **Video demo:** [https://www.loom.com/share/135c81591e434b3bb6c416e5090ffa5d](https://www.loom.com/share/135c81591e434b3bb6c416e5090ffa5d)
 
 ```text
 pool/
