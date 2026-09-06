@@ -33,7 +33,8 @@ jobs:
       - name: Open, close, or settle the next required lifecycle step
         run: npm run keeper:once
         env:
-          VAULT_ADDRESS: ${{ secrets.VAULT_ADDRESS }}
+          # Public V8 Sepolia deployment; only the signer key and RPC URL are secrets.
+          VAULT_ADDRESS: "0x4294f12aE993561B5b6e966A653468f59cC9C39f"
           KEEPER_PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}
           KEEPER_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
           KEEPER_CHAIN_ID: "11155111"

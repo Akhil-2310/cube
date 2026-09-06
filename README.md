@@ -192,9 +192,11 @@ contribution.
 `.github/workflows/keeper.yml` runs `keeper:once` every five minutes and also supports manual dispatch. In the public
 GitHub repository, add these encrypted repository secrets under **Settings → Secrets and variables → Actions**:
 
-- `VAULT_ADDRESS`: the newly deployed Sepolia vault;
 - `KEEPER_PRIVATE_KEY`: a dedicated gas-only wallet key;
 - `SEPOLIA_RPC_URL`: an HTTPS Sepolia RPC endpoint.
+
+The public V8 vault address is pinned in the workflow as `VAULT_ADDRESS`; update that workflow value whenever a new
+vault version is deployed.
 
 Fund the keeper address with Sepolia ETH, push the workflow to the default branch, open the repository's **Actions**
 tab, and manually run **Sepolia Prize Keeper** once to verify its logs. The scheduled job opens, closes, and settles
