@@ -295,7 +295,10 @@ export function useCube() {
       setBusy("Decrypting your position");
       const { signer } = await contracts;
       const { vault, asset } = readContracts;
-      const [position, assetBalance] = await Promise.all([vault.myPosition(), asset.confidentialBalanceOf(address)]);
+      const [position, assetBalance] = await Promise.all([
+        vault.myPosition({ from: address }),
+        asset.confidentialBalanceOf(address),
+      ]);
       const pairs = [
         { handle: position[0], contractAddress: addresses.vault },
         { handle: position[1], contractAddress: addresses.vault },
@@ -319,7 +322,7 @@ export function useCube() {
       setBusy("Decrypting draw result");
       const { signer } = await contracts;
       const { vault } = readContracts;
-      const resultHandles = await vault.myDrawResult(latestSettledDrawId);
+      const resultHandles = await vault.myDrawResult(latestSettledDrawId, { from: address });
       const pairs = [
         { handle: resultHandles[0], contractAddress: addresses.vault },
         { handle: resultHandles[1], contractAddress: addresses.vault },
