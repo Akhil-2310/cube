@@ -2,8 +2,8 @@ name: Sepolia Prize Keeper
 
 on:
   schedule:
-    # Every five minutes, offset from the top of the hour to reduce scheduler congestion.
-    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
+    # GitHub's shortest supported interval. Runs may start a few minutes late.
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
