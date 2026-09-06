@@ -1,10 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BrowserProvider, Contract, formatUnits, parseUnits, type Eip1193Provider } from "ethers";
+import {
+  BrowserProvider,
+  Contract,
+  JsonRpcProvider,
+  formatUnits,
+  parseUnits,
+  type Eip1193Provider,
+} from "ethers";
 import type { FhevmInstance } from "@zama-fhe/relayer-sdk/web";
 import { toast } from "sonner";
 import { useAccount, useWalletClient } from "wagmi";
+import { sepolia } from "wagmi/chains";
 import {
   addresses,
   confidentialAssetAbi,
@@ -65,6 +73,15 @@ export function useCube() {
       name: walletClient.chain.name,
     });
   }, [eip1193Provider, walletClient]);
+  const readProvider = useMemo(
+    () =>
+      new JsonRpcProvider(
+        process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || sepolia.rpcUrls.default.http[0],
+        { chainId: sepolia.id, name: sepolia.name },
+        { staticNetwork: true },
+      ),
+    [],
+  );
   const [draw, setDraw] = useState<DrawSnapshot | null>(null);
   const [pendingDraw, setPendingDraw] = useState<DrawSnapshot | null>(null);
   const [latestSettledDrawId, setLatestSettledDrawId] = useState(0n);
@@ -91,6 +108,14 @@ export function useCube() {
       strategy: new Contract(addresses.yieldStrategy, yieldStrategyAbi, signer),
     }));
   }, [provider]);
+  const readContracts = useMemo(
+    () => ({
+      vault: new Contract(addresses.vault, vaultAbi, readProvider),
+      asset: new Contract(addresses.confidentialAsset, confidentialAssetAbi, readProvider),
+      underlying: new Contract(addresses.underlying, underlyingAbi, readProvider),
+    }),
+    [readProvider],
+  );
 
   useEffect(() => {
     if (!eip1193Provider || chainId !== 11155111n) return;
@@ -108,9 +133,9 @@ export function useCube() {
   }, [chainId, eip1193Provider]);
 
   const refresh = useCallback(async () => {
-    if (!contracts || !address || !isConfigured) return;
+    if (!address || !isConfigured) return;
     try {
-      const { vault, asset, underlying } = await contracts;
+      const { vault, asset, underlying } = readContracts;
       const [drawId, pendingId, settledId, count, vaultOperator, strategyOperator, clearBalance] = await Promise.all([
         vault.currentDrawId(),
         vault.oldestPendingDrawId(),
@@ -160,7 +185,7 @@ export function useCube() {
     } catch (error) {
       console.error(error);
     }
-  }, [address, contracts]);
+  }, [address, readContracts]);
 
   useEffect(() => {
     const initial = window.setTimeout(() => void refresh(), 0);
@@ -268,7 +293,8 @@ export function useCube() {
     if (!contracts || !fhe || !address) return;
     try {
       setBusy("Decrypting your position");
-      const { signer, vault, asset } = await contracts;
+      const { signer } = await contracts;
+      const { vault, asset } = readContracts;
       const [position, assetBalance] = await Promise.all([vault.myPosition(), asset.confidentialBalanceOf(address)]);
       const pairs = [
         { handle: position[0], contractAddress: addresses.vault },
@@ -285,13 +311,14 @@ export function useCube() {
     } finally {
       setBusy("");
     }
-  }, [address, contracts, fhe]);
+  }, [address, contracts, fhe, readContracts]);
 
   const decryptResult = useCallback(async () => {
     if (!contracts || !fhe || !address || latestSettledDrawId === 0n) return;
     try {
       setBusy("Decrypting draw result");
-      const { signer, vault } = await contracts;
+      const { signer } = await contracts;
+      const { vault } = readContracts;
       const resultHandles = await vault.myDrawResult(latestSettledDrawId);
       const pairs = [
         { handle: resultHandles[0], contractAddress: addresses.vault },
@@ -308,7 +335,7 @@ export function useCube() {
     } finally {
       setBusy("");
     }
-  }, [address, contracts, fhe, latestSettledDrawId]);
+  }, [address, contracts, fhe, latestSettledDrawId, readContracts]);
 
   const claimPrize = useCallback(async () => {
     if (!contracts || latestSettledDrawId === 0n) return;
