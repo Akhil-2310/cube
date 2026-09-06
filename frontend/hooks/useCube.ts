@@ -241,26 +241,28 @@ export function useCube() {
     [contracts, encrypt, transact],
   );
 
-  const contributeYield = useCallback(
+  const fundYieldReserve = useCallback(
     async (amount: string) => {
       if (!contracts) return;
-      setBusy(`Encrypting ${amount} cUSDCMock yield`);
+      setBusy(`Encrypting ${amount} cUSDCMock reserve`);
       try {
         const encrypted = await encrypt(amount, addresses.yieldStrategy);
-        const { strategy, vault } = await contracts;
-        if (
-          !(await transact("Fund encrypted yield reserve", () =>
-            strategy.fundYieldReserve(encrypted.handles[0], encrypted.inputProof),
-          ))
-        )
-          return;
-        await transact("Harvest yield into draw", () => vault.harvestYield());
+        const { strategy } = await contracts;
+        await transact("Fund encrypted yield reserve", () =>
+          strategy.fundYieldReserve(encrypted.handles[0], encrypted.inputProof),
+        );
       } finally {
         setBusy("");
       }
     },
     [contracts, encrypt, transact],
   );
+
+  const harvestYield = useCallback(async () => {
+    if (!contracts) return;
+    const { vault } = await contracts;
+    await transact("Harvest accrued yield into prize", () => vault.harvestYield());
+  }, [contracts, transact]);
 
   const decryptPosition = useCallback(async () => {
     if (!contracts || !fhe || !address) return;
@@ -323,7 +325,7 @@ export function useCube() {
       },
       closeDraw: async () => {
         const { vault } = await contracts;
-        await transact("Generate encrypted FHE draw", () => vault.closeDraw());
+        await transact("Harvest, close, and generate FHE draw", () => vault.closeDraw());
       },
       settle: async () => {
         if (!pendingDraw) return;
@@ -359,7 +361,8 @@ export function useCube() {
     authorize,
     deposit: (amount: string) => encryptedWrite("Deposit privately", "deposit", amount),
     withdraw: (amount: string) => encryptedWrite("Withdraw principal", "withdraw", amount),
-    contribute: contributeYield,
+    fundYieldReserve,
+    harvestYield,
     decryptPosition,
     decryptResult,
     claimPrize,

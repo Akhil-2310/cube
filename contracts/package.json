@@ -86,6 +86,8 @@
     "chain": "hardhat node --network hardhat --no-deploy",
     "deploy:localhost": "hardhat deploy --network localhost",
     "deploy:sepolia": "hardhat deploy --network sepolia",
+    "keeper": "ts-node --transpile-only keeper/keeper.ts",
+    "keeper:once": "cross-env KEEPER_RUN_ONCE=true npm run keeper",
     "verify:sepolia": "hardhat verify --network sepolia"
   },
   "overrides": {

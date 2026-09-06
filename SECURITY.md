@@ -8,6 +8,8 @@ Cube is an unaudited testnet demonstration. Do not use it to custody assets with
   principal withdrawals or control winner selection.
 - Any account may initialize the first fixed-duration draw, close an expired draw (which immediately opens its
   successor), harvest available yield, and advance settlement for a closed draw.
+- The bundled keeper has no special contract role. Its dedicated key holds only gas funds and calls those same
+  permissionless lifecycle methods.
 - Draw closure calls Zama's onchain encrypted CSPRNG. No owner, keeper, or offchain callback supplies the random value.
 - A user must explicitly grant the vault and strategy time-limited ERC-7984 operator rights before confidential
   transfers.
@@ -23,6 +25,7 @@ For a value-bearing deployment, ownership should be transferred to a timelocked 
 - A user's principal can be withdrawn in every draw state and while the vault is paused.
 - Draw weight is frozen at the scheduled close. Encrypted balance observations let later deposits and withdrawals
   change the open draw without altering any closed draw's TWAB.
+- Closing atomically harvests remaining strategy yield into the Prize Pool before encrypted tier prizes are calculated.
 - Settlement is deterministic for the frozen encrypted TWAB state and encrypted FHE random tickets.
 - Settlement reserves prizes; only a participant's later claim can transfer their encrypted zero-or-prize result.
 - Winner and payout ciphertexts are authorized only for the vault and the corresponding participant.
@@ -56,6 +59,10 @@ For a value-bearing deployment, ownership should be transferred to a timelocked 
 - Verify the official Zama `cUSDCMock` and underlying test-USDC addresses against the published Sepolia registry.
 - Transfer ownership to a timelocked multisig.
 - Monitor draw state, FHE execution, strategy solvency, ciphertext ACL errors, claims, and settlement progress.
+- Monitor the keeper process balance, heartbeat, transaction failures, and RPC availability; retain the frontend keeper
+  controls as a manual fallback.
+- Store `KEEPER_PRIVATE_KEY` only as a hosting-platform or GitHub Actions secret. Keep workflow permissions read-only,
+  use one concurrency group, and never run untrusted pull-request code with keeper secrets.
 - Exercise pause, withdrawal, failed close/settlement, rollover, and recovery procedures before launch.
 - Obtain independent Solidity, FHE access-control, economic, frontend, and infrastructure reviews.
 

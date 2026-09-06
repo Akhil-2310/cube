@@ -174,7 +174,7 @@ describe("ConfidentialPrizeVault", function () {
     expect((await vault.drawInfo(2))[3]).to.equal(1);
   });
 
-  it("harvests encrypted yield, reserves it on settlement, and pays only on claim", async function () {
+  it("harvests encrypted yield automatically on close, then pays only on claim", async function () {
     await vault.openDraw();
     await shield(alice, tokens(500));
     await shield(sponsor, tokens(100));
@@ -185,7 +185,6 @@ describe("ConfidentialPrizeVault", function () {
     const yieldInput = await encryptedStrategyAmount(sponsor, tokens(25));
     await strategy.connect(sponsor).fundYieldReserve(yieldInput.handles[0], yieldInput.inputProof);
     await time.increase(120);
-    await vault.harvestYield();
     await closeDraw();
     await vault.settleBatch(1, 16);
 
@@ -236,7 +235,7 @@ describe("ConfidentialPrizeVault", function () {
     await vault.settleBatch(1, 16);
 
     await deposit(alice, tokens(75));
-    await closeDraw(2);
+    await closeDraw(2n);
     await vault.settleBatch(2, 16);
     const [, payout] = await vault.connect(alice).myDrawResult(2);
     expect(await decrypt64(payout, alice)).to.equal(tokens(40));

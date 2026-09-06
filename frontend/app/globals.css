@@ -669,6 +669,82 @@ button:disabled {
   margin-bottom: 14px;
 }
 
+.draw-tracker {
+  margin-bottom: 20px;
+}
+
+.draw-tracker-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 14px;
+}
+
+.draw-tracker-head h2 {
+  margin-bottom: 0;
+}
+
+.draw-tracker-head > small {
+  max-width: 480px;
+  color: var(--muted);
+  line-height: 1.5;
+  text-align: right;
+}
+
+.draw-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.draw-card {
+  display: grid;
+  gap: 8px;
+}
+
+.draw-card.active-draw {
+  background: var(--mint);
+}
+
+.draw-card strong,
+.draw-card b,
+.draw-card small {
+  display: block;
+}
+
+.draw-card b {
+  font-family: var(--font-press-start), "Press Start 2P", monospace;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.draw-card small {
+  color: var(--muted);
+}
+
+.draw-status {
+  width: max-content;
+  padding: 5px 8px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.draw-status.open {
+  background: #bff7c8;
+}
+
+.draw-status.pending {
+  background: #ffe7b3;
+}
+
+.draw-status.settled {
+  background: var(--sky);
+}
+
 .metric small {
   color: var(--muted);
 }
@@ -868,10 +944,18 @@ button:disabled {
   .card-grid,
   .card-grid.two,
   .flow-grid,
+  .draw-card-grid,
   .metric-row,
   .public-proof,
   .result-strip {
     grid-template-columns: 1fr;
+  }
+  .draw-tracker-head {
+    align-items: start;
+    flex-direction: column;
+  }
+  .draw-tracker-head > small {
+    text-align: left;
   }
   .public-proof > div + div {
     border-left: 0;

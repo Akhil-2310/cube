@@ -200,12 +200,7 @@ contract ConfidentialPrizeVault is ZamaEthereumConfig, Ownable, Pausable, Reentr
     /// @notice Pulls accumulated strategy yield into the encrypted prize liquidity for this draw.
     function harvestYield() external nonReentrant whenNotPaused {
         Draw storage draw = _openDraw();
-        euint64 harvested = yieldStrategy.harvest(address(prizePool));
-        FHE.allowTransient(harvested, address(prizePool));
-        prizePool.contribute(harvested);
-        draw.prize = FHE.add(draw.prize, harvested);
-        FHE.allowThis(draw.prize);
-        emit YieldHarvested(currentDrawId, harvested);
+        _harvestIntoDraw(currentDrawId, draw);
     }
 
     /// @notice Freezes TWAB and generates encrypted, deposit-weighted tickets fully onchain.
@@ -214,6 +209,10 @@ contract ConfidentialPrizeVault is ZamaEthereumConfig, Ownable, Pausable, Reentr
         Draw storage draw = _draws[closingDrawId];
         if (draw.state != DrawState.Open) revert DrawNotOpen();
         if (block.timestamp < draw.closesAt) revert DrawStillOpen();
+
+        // Sweep remaining strategy yield before sizing prizes. This keeps
+        // scheduled closes self-contained even when no manual harvest ran.
+        _harvestIntoDraw(closingDrawId, draw);
         draw.totalTwab = _twabBetween(_totalObservations, draw.openedAt, draw.closesAt);
         draw.participantCount = uint32(_participants.length);
         FHE.allowThis(draw.totalTwab);
@@ -335,6 +334,15 @@ contract ConfidentialPrizeVault is ZamaEthereumConfig, Ownable, Pausable, Reentr
     function _openDraw() private view returns (Draw storage draw) {
         draw = _draws[currentDrawId];
         if (draw.state != DrawState.Open || block.timestamp >= draw.closesAt) revert DrawNotOpen();
+    }
+
+    function _harvestIntoDraw(uint64 drawId, Draw storage draw) private {
+        euint64 harvested = yieldStrategy.harvest(address(prizePool));
+        FHE.allowTransient(harvested, address(prizePool));
+        prizePool.contribute(harvested);
+        draw.prize = FHE.add(draw.prize, harvested);
+        FHE.allowThis(draw.prize);
+        emit YieldHarvested(drawId, harvested);
     }
 
     function _checkpointPosition(address account, Draw storage draw) private {

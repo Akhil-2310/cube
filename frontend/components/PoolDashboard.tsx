@@ -59,6 +59,15 @@ export function PoolDashboard() {
     pool.draw?.state === 1
       ? `${String(Math.floor(remaining / 3600)).padStart(2, "0")}:${String(Math.floor((remaining % 3600) / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`
       : "--:--:--";
+  const closesAtLabel = pool.draw?.closesAt
+    ? new Date(pool.draw.closesAt * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    : "—";
+  const timeLeftLabel =
+    pool.draw?.state !== 1
+      ? "No active draw"
+      : remaining === 0
+        ? "Ready to close"
+        : `${Math.floor(remaining / 60)}m ${remaining % 60}s left`;
 
   let mood: PetMood = "idle";
   if (pool.won === true) mood = "winner";
@@ -96,6 +105,36 @@ export function PoolDashboard() {
       )}
 
       <section className="band shell">
+        <div className="draw-tracker">
+          <div className="draw-tracker-head">
+            <div>
+              <p className="section-kicker">Draw tracker</p>
+              <h2>Current and recent draws</h2>
+            </div>
+            <small>One deposit draw stays open at a time. Closing it automatically opens the next.</small>
+          </div>
+          <div className="draw-card-grid">
+            <article className="pixel-card draw-card active-draw">
+              <span className="draw-status open">Open now</span>
+              <strong>{pool.draw?.id ? `Draw #${pool.draw.id}` : "No draw open"}</strong>
+              <b>{timeLeftLabel}</b>
+              <small>Closes at {closesAtLabel}</small>
+            </article>
+            <article className="pixel-card draw-card">
+              <span className="draw-status pending">Pending</span>
+              <strong>{pool.pendingDraw ? `Draw #${pool.pendingDraw.id}` : "None"}</strong>
+              <b>{pool.pendingDraw ? "Ready for settlement" : "No draw waiting"}</b>
+              <small>{pool.pendingDraw ? `${pool.pendingDraw.processed} accounts processed` : "Up to date"}</small>
+            </article>
+            <article className="pixel-card draw-card">
+              <span className="draw-status settled">Settled</span>
+              <strong>{pool.latestSettledDrawId ? `Draw #${pool.latestSettledDrawId}` : "None yet"}</strong>
+              <b>{pool.latestSettledDrawId ? "Result encrypted" : "Waiting for first result"}</b>
+              <small>Decrypt your result below</small>
+            </article>
+          </div>
+        </div>
+
         <div className="metric-row">
           <div className="pixel-card metric">
             <span>Confidential principal</span>
@@ -194,12 +233,26 @@ export function PoolDashboard() {
               disabled={!pool.address || Boolean(pool.busy)}
             />
             <hr className="divider" />
-            <p className="small-copy">Fund the encrypted reserve, then harvest yield accrued from pooled principal.</p>
+            <p className="small-copy">
+              Sponsor cUSDC funds the mock-yield reserve. It backs interest earned by depositors but does not become the
+              prize until accrued yield is harvested.
+            </p>
             <AmountAction
-              label="Fund reserve & harvest"
-              onSubmit={pool.contribute}
-              disabled={!pool.isOperator || pool.draw?.state !== 1 || remaining === 0 || Boolean(pool.busy)}
+              label="Fund yield reserve"
+              onSubmit={pool.fundYieldReserve}
+              disabled={!pool.isOperator || Boolean(pool.busy)}
             />
+            <button
+              className="secondary-button"
+              onClick={() => void pool.harvestYield()}
+              disabled={!pool.address || pool.draw?.state !== 1 || remaining === 0 || Boolean(pool.busy)}
+            >
+              Harvest accrued yield now (optional)
+            </button>
+            <p className="action-note">
+              Closing automatically harvests all remaining accrued yield. This optional button demonstrates an early
+              harvest before the countdown ends.
+            </p>
           </div>
         </div>
 
@@ -255,7 +308,7 @@ export function PoolDashboard() {
                 onClick={() => void pool.keeper?.closeDraw()}
                 disabled={!pool.address || Boolean(pool.busy) || pool.draw?.state !== 1 || remaining > 0}
               >
-                Close + FHE RNG
+                Harvest + close + FHE RNG
               </button>
               <button
                 className="secondary-button"
